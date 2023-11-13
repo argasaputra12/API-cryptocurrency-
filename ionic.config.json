@@ -1,0 +1,7 @@
+{
+  "name": "[arga]",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
