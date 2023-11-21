@@ -1,56 +1,75 @@
 <template>
   <ion-page>
-    <ion-header :translucent="true">
-      <ion-toolbar>
-        <ion-title>Blank</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content :fullscreen="true">
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Blank</ion-title>
-        </ion-toolbar>
-      </ion-header>
-
-      <div id="container">
-        <strong>Ready to create an app?</strong>
-        <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-      </div>
+    <ion-content>
+      <ion-grid>
+        <!-- Button to trigger getData method -->
+        <ion-row>
+          <ion-col size="12" class="ion-text-center" style="text-align: center">
+            <ion-button @click="getData" style="text-transform: capitalize">
+              GetData
+            </ion-button>
+          </ion-col>
+        </ion-row>
+        <!-- Display loading indicator -->
+        <ion-row v-if="loading" style="padding: 10px">
+          <ion-col size="12" style="text-align: center">Loading...</ion-col>
+        </ion-row>
+        <!-- Display error message if there is an issue -->
+        <ion-row v-if="error" style="color: red; padding: 10px">
+          <ion-col size="12" style="text-align: center">{{ error }}</ion-col>
+        </ion-row>
+        <!-- Header row with Name, Symbol, and Harga USD columns -->
+        <ion-row style="border: 2px solid black; padding: 10px">
+          <ion-col size="4" style="text-align: center; border-right: 2px solid black">Name</ion-col>
+          <ion-col size="4" style="text-align: center; border-right: 2px solid black">Symbol</ion-col>
+          <ion-col size="4" style="text-align: center">Harga USD</ion-col>
+        </ion-row>
+        <!-- Data rows using v-for -->
+        <ion-row v-for="item in items" :key="item.id" style="padding: 10px">
+          <ion-col size="4" style="text-align: center; border-right: 2px solid black">{{ item.name }}</ion-col>
+          <ion-col size="4" style="text-align: center; border-right: 2px solid black">{{ item.symbol }}</ion-col>
+          <ion-col size="4" style="text-align: center">{{ item.price_usd }}</ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-content>
   </ion-page>
 </template>
 
-<script setup lang="ts">
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
+<script>
+import axios from "axios";
+export default {
+  data() {
+    return {
+      items: [],
+      error: null,
+      loading: false,
+    };
+  },
+  methods: {
+    getData() {
+      this.loading = true;
+      axios
+        .get("https://api.coinlore.net/api/tickers/")
+        .then((response) => {
+          this.items = response.data.data;
+          this.error = null;
+        })
+        .catch((error) => {
+          console.log(error);
+          if (axios.isAxiosError(error) && !error.response) {
+            this.error = "Network error. Please check your internet connection.";
+          } else {
+            this.error = "Error fetching data. Please try again.";
+          }
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+  },
+};
 </script>
 
 <style scoped>
-#container {
-  text-align: center;
-  
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-  
-  color: #8c8c8c;
-  
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
-}
+/* Add any custom styles here */
 </style>
